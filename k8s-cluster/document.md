@@ -12,7 +12,7 @@ hpa	        192.168.121.129	    Load Balancer
 -------------------------------------------------
 ```
 
-## Part-1: Common Setup (All Nodes) <br>
+## Part-1: Common Setup (master1,master2,master3,worker1) <br>
 
-### Step 1: Hostname Setup (Optional but Recommended)
+#### Step 1: Hostname Setup (Optional but Recommended)
 
