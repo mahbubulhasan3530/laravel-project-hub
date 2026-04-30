@@ -136,4 +136,28 @@ sudo kubeadm init \
 If the --certificate-key doesn't appear in the output, generate it manually. 
 ```bash
 sudo kubeadm init phase upload-certs --upload-certs
+``` 
+
+**Expected Output Example**
+```bash
+kubeadm join <HAproxy-ip>:6443 \
+  --token ******#####@@@@&&&&* \
+  --discovery-token-ca-cert-hash sha256:-----####*********@@@@@@@ \
+  --control-plane \
+  --certificate-key *****************@@@@@@@@@@@################
+  ```
+
+  #### step 9 : Configure kubectl Access (on master1)
+```bash
+# Setup kubectl configuration
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+# Test access
+kubectl get nodes
 ```
+
+#### Step 10: Join Additional Control Plane Nodes (master2 & master3) 
+
+* On master2 and master3, run the join command with --control-plane flag *
