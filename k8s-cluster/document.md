@@ -130,4 +130,4 @@ sudo kubeadm init \
   --upload-certs \
   --pod-network-cidr=10.10.0.0/16
 ```
-CRITICAL: Save the kubeadm join command from the output! You'll need it for master2, master3, and worker1.
+**<span style="color:red">CRITICAL</span>: Save the kubeadm join command from the output! You'll need it for master2, master3, and worker1.**
