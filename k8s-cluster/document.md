@@ -104,7 +104,7 @@ sudo apt update
 cat /etc/apt/sources.list.d/kubernetes.list
 ```
 
-#### step 7: # Install kubeadm, kubelet, and kubectl
+#### step 7: Install kubeadm, kubelet, and kubectl
 ```bash
 # Update package index and install Kubernetes components
 sudo apt update
@@ -116,3 +116,18 @@ sudo apt-mark hold kubelet kubeadm kubectl
 # Enable kubelet
 sudo systemctl enable kubelet
 ```
+
+## Part-2 : Master Node Setup - Initialize Cluster <br>
+
+#### part 8: Initialize the Cluster (on master1 Only)
+```bash
+# Find your master node IP address
+ip addr show
+
+# Initialize the cluster with HAProxy endpoint
+sudo kubeadm init \
+  --control-plane-endpoint "192.168.121.129:6443" \
+  --upload-certs \
+  --pod-network-cidr=10.10.0.0/16
+```
+CRITICAL: Save the kubeadm join command from the output! You'll need it for master2, master3, and worker1.
