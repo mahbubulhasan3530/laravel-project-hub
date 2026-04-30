@@ -187,16 +187,16 @@ On worker1, run the join command **without --control-plane** flag
   --discovery-token-ca-cert-hash sha256:-----####*********@@@@@@@
   ```
 
-  ## Part-2: HAProxy Node Setup (hpa Only)
+  ## Part-3: HAProxy Node Setup (hpa Only)
 
-  #### Step 11: Install and Configure HAProxy
-  **11.1 Install HAProxy**
+  #### Step 12: Install and Configure HAProxy
+  **12.1 Install HAProxy**
   ```bash
   sudo apt update
   sudo apt install -y haproxy
 ```
 
-**11.2 Configure HAProxy**
+**12.2 Configure HAProxy**
 Edit /etc/haproxy/haproxy.cfg
 ```bash
 sudo vim /etc/haproxy/haproxy.cfg
@@ -238,7 +238,7 @@ backend kubernetes-backend
     server master3 192.168.121.80:6443 check
 ```
 
-**11.3 Start HAProxy**
+**12.3 Start HAProxy**
 ```bash
 # Validate configuration
 sudo haproxy -f /etc/haproxy/haproxy.cfg -c
@@ -251,6 +251,103 @@ sudo systemctl enable haproxy
 sudo systemctl status haproxy
 sudo ss -tulpn | grep 6443
 ```
-**11.4 Install kubectl on HAProxy Node (For Cluster Management)**
+**12.4 Install kubectl on HAProxy Node (For Cluster Management)**
 
 
+## Part-4: Install Cilium CNI Plugin
+```bash
+# Cilium CLI version find out and download it.
+CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
+CLI_ARCH=amd64
+if [ "$(uname -m)" = "aarch64" ]; then CLI_ARCH=arm64; fi
+
+curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
+sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum
+sudo tar -xzvf cilium-linux-${CLI_ARCH}.tar.gz -C /usr/local/bin
+rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
+
+# Cilium version check
+cilium version
+
+# Cilium install with appropiate version.
+cilium install --version v1.18.1 #choose from the last command (cilium version)_
+
+# Status check
+cilium status
+```
+**It will take some time to install cilium.**
+
+#### If resources are limited, then allow scheduling on the master node (optional).
+```bash
+# Remove taint to allow pod scheduling on master nodes
+kubectl taint nodes --all node-role.kubernetes.io/control-plane-
+```
+
+## Part-5 :Configure HAProxy Node for Cluster Management
+
+#### step 13: Copy kubeconfig from master1 to hpa
+
+**On master1**
+```bash
+# Make admin.conf readable for copying
+sudo cp /etc/kubernetes/admin.conf /tmp/admin.conf
+sudo chmod 644 /tmp/admin.conf
+```
+**On hpa (HAProxy node)**
+```bash
+# Create .kube directory
+mkdir -p $HOME/.kube
+
+# Copy kubeconfig from master1
+scp vagrant@192.168.121.154:/tmp/admin.conf $HOME/.kube/config
+
+# Verify cluster access
+kubectl get nodes
+```
+**Expected  Output **
+
+```bash
+NAME      STATUS     ROLES           AGE     VERSION
+master1   Ready      control-plane   5m      v1.35.0
+master2   Ready      control-plane   3m      v1.35.0
+master3   Ready      control-plane   2m      v1.35.0
+worker1   Ready      <none>          1m      v1.35.0
+```
+
+## Part-6: Verification
+#### Step 14: Verify Cluster Status
+```bash
+# Check all nodes are ready
+kubectl get nodes -o wide
+
+# Check all system pods are running
+kubectl get pods --all-namespaces
+
+# Check Cilium status
+cilium status --wait
+kubectl -n kube-system exec ds/cilium -- cilium status
+
+# Verify HAProxy load balancing
+curl -k https://192.168.121.129:6443/version
+```
+#### Step 15: Test with Sample Application
+
+```bash
+# Check all nodes are ready
+kubectl get nodes
+
+# Check all system pods are running
+kubectl get pods --all-namespaces
+
+# Test with sample application
+kubectl create deployment test-nginx --image=nginx
+kubectl get pods
+
+#expose the port 
+kubectl expose deployment test-nginx --port=80 --target-port=80 --type=NodePort
+
+# Clean up test
+kubectl delete deployment test-nginx
+
+kubectl delete svc test-nginx
+```
