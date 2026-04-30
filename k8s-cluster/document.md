@@ -126,7 +126,7 @@ ip addr show
 
 # Initialize the cluster with HAProxy endpoint
 sudo kubeadm init \
-  --control-plane-endpoint "192.168.121.129:6443" \
+  --control-plane-endpoint "<HAProxy-IP>:6443" \
   --upload-certs \
   --pod-network-cidr=10.10.0.0/16
 ```
@@ -140,7 +140,7 @@ sudo kubeadm init phase upload-certs --upload-certs
 
 **Expected Output Example**
 ```bash
-kubeadm join <HAproxy-ip>:6443 \
+sudo kubeadm join <HAproxy-ip>:6443 \
   --token ******#####@@@@&&&&* \
   --discovery-token-ca-cert-hash sha256:-----####*********@@@@@@@ \
   --control-plane \
@@ -160,4 +160,97 @@ kubectl get nodes
 
 #### Step 10: Join Additional Control Plane Nodes (master2 & master3) 
 
-* On master2 and master3, run the join command with --control-plane flag *
+ On master2 and master3, run the join command with --control-plane flag 
+ ```bash
+ sudo kubeadm join <HAproxy-ip>:6443 \
+  --token ******#####@@@@&&&&* \
+  --discovery-token-ca-cert-hash sha256:-----####*********@@@@@@@ \
+  --control-plane \
+  --certificate-key *****************@@@@@@@@@@@################
+  ```
+
+  Configure kubectl on master2 and master3
+
+```bash
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+```
+
+#### Step 11: Join Worker Node (worker1)
+
+On worker1, run the join command **without --control-plane** flag
+
+```bash
+ sudo kubeadm join <HAproxy-ip>:6443 \
+  --token ******#####@@@@&&&&* \
+  --discovery-token-ca-cert-hash sha256:-----####*********@@@@@@@
+  ```
+
+  ## Part-2: HAProxy Node Setup (hpa Only)
+
+  #### Step 11: Install and Configure HAProxy
+  **11.1 Install HAProxy**
+  ```bash
+  sudo apt update
+  sudo apt install -y haproxy
+```
+
+**11.2 Configure HAProxy**
+Edit /etc/haproxy/haproxy.cfg
+```bash
+sudo vim /etc/haproxy/haproxy.cfg
+```
+
+Add the following configuration 
+```bash
+global
+    log /dev/log local0
+    log /dev/log local1 notice
+    chroot /var/lib/haproxy
+    stats socket /run/haproxy/admin.sock mode 660 level admin
+    stats timeout 30s
+    user haproxy
+    group haproxy
+    daemon
+
+defaults
+    log global
+    mode http
+    option httplog
+    option dontlognull
+    timeout connect 5000
+    timeout client 50000
+    timeout server 50000
+
+frontend kubernetes-frontend
+    bind *:6443
+    mode tcp
+    option tcplog
+    default_backend kubernetes-backend
+
+backend kubernetes-backend
+    mode tcp
+    option tcp-check
+    balance roundrobin
+    server master1 192.168.121.154:6443 check
+    server master2 192.168.121.15:6443 check
+    server master3 192.168.121.80:6443 check
+```
+
+**11.3 Start HAProxy**
+```bash
+# Validate configuration
+sudo haproxy -f /etc/haproxy/haproxy.cfg -c
+
+# Restart and enable HAProxy
+sudo systemctl restart haproxy
+sudo systemctl enable haproxy
+
+# Verify HAProxy is running
+sudo systemctl status haproxy
+sudo ss -tulpn | grep 6443
+```
+**11.4 Install kubectl on HAProxy Node (For Cluster Management)**
+
+
