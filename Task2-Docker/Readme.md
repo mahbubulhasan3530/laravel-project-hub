@@ -128,3 +128,8 @@ docker run -d -p 9000:9000 \
   -v $(pwd)/.env:/var/www/html/.env \
   --name app satabun3530/laravel:v1
 ```
+
+#### My image rule is 
+```bash
+https://hub.docker.com/r/satabun3530/laravel/tags
+```
