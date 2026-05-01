@@ -1,0 +1,23 @@
+# Git
+.git
+.gitignore
+
+# Laravel specific
+/vendor
+/node_modules
+.env
+.env.backup
+/storage/*.key
+/public/storage
+.phpunit.result.cache
+
+# Docker specific
+Dockerfile
+.dockerignore
+docker/
+
+# OS/IDE files
+.DS_Store
+.vscode
+.idea
+*.log

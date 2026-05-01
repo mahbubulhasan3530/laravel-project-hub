@@ -1,0 +1,15 @@
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: laravel-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - laravel-net
+
+networks:
+  laravel-net:
+    driver: bridge
