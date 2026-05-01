@@ -42,8 +42,25 @@ Route::get('/health', function () {
 });
 ```
 
-** As this project does not require Redis or database-backed session storage, Laravel is configured to use the file session driver for simplicity**
+**As this project does not require Redis or database-backed session storage, Laravel is configured to use the file session driver for simplicity**
 ```
 go to .env
 and change SESSION_DRIVER=database to SESSION_DRIVER=file
 ```
+
+#### Step 3: Run Laravel
+```bash
+php artisan serve --host=0.0.0.0 --port=8000
+```
+
+#### Step 4: Test (VERY IMPORTANT for proof)
+ **Go to browser and hit the url**
+ ```bash
+ http://192.168.121.181:8000/
+ http://192.168.121.181:8000/health
+ ```
+ Expected
+ ```bash
+ Laravel Kubernetes Deployment Test
+ Health
+ ```
