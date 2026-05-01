@@ -65,3 +65,5 @@ php artisan serve --host=0.0.0.0 --port=8000
  Health
  ```
 ![Laravel App](laravel-app.png)
+
+#### Screenshot (visual proof)
