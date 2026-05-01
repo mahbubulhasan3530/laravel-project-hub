@@ -27,7 +27,7 @@ RUN mkdir -p storage/framework/{sessions,views,cache} \
 EXPOSE 9000
 CMD ["php-fpm"]
 ```
-#### Step-2: Create .dockerignore
+#### Step-2: Create .dockerignore (root project)
 
 ```bash
 # Git
@@ -54,7 +54,7 @@ docker/
 .idea
 *.log
 ```
-#### Build Docker Image with full tag 
+#### Step-3: Build Docker Image with full tag 
 ```bash
 docker build -t satabun3530/laravel:v1 .
 ```
@@ -64,12 +64,12 @@ Docker Hub username = satabun3530
 repo = laravel
 tag = v1
 ```
-#### Login to Docker Hub
+#### Step-4: Login to Docker Hub
 ```bash
 docker login 
 ```
 
-#### Push image 
+#### Step-5: Push image 
 ```bash
 docker push satabun3530/laravel:v1
 ```
