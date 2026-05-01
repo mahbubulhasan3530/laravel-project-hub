@@ -14,3 +14,36 @@ Laravel (13)
 Git
 Curl (for testing endpoints)
 ```
+
+#### Step 1: Create Laravel Project
+```bash
+composer create-project laravel/laravel laravel-app "^13.0"
+cd laravel-app
+```
+
+#### Step 2: Add Routes
+
+Open this file
+```bash
+routes/web.php
+```
+Replace or add
+```bash
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', function () {
+    return "Laravel Kubernetes Deployment Test";
+});
+
+Route::get('/health', function () {
+    return response()->json(['status' => 'ok'], 200);
+});
+```
+
+** As this project does not require Redis or database-backed session storage, Laravel is configured to use the file session driver for simplicity**
+```
+go to .env
+and change SESSION_DRIVER=database to SESSION_DRIVER=file
+```
