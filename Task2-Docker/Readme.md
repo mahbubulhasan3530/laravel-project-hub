@@ -1,6 +1,7 @@
-## Dockerize your Laravel app
+## Dockerize the Laravel app
 
 #### step-1:Create Dockerfile (root project)
+I used a PHP-FPM base image and optimized the container for Laravel production environments
 ```bash
 FROM php:8.3-fpm
 
@@ -28,6 +29,7 @@ EXPOSE 9000
 CMD ["php-fpm"]
 ```
 #### Step-2: Create .dockerignore (root project)
+Used to keep the image slim and prevent sensitive files (like .env) from being baked into the image.
 
 ```bash
 # Git
@@ -75,6 +77,8 @@ docker push satabun3530/laravel:v1
 ```
 
 ### To test the Docker-pushed image, we need to run it with an Nginx container and inject the .env file at runtime.
+
+**To verify the pushed image, I used a sidecar Nginx setup via Docker Compose.**
 
 #### Step-1: create a nginx default.conf file
 ```bash
@@ -129,7 +133,7 @@ docker run -d -p 9000:9000 \
   --name app satabun3530/laravel:v1
 ```
 
-#### My image rule is 
+#### My image url is 
 ```bash
 https://hub.docker.com/r/satabun3530/laravel/tags
 ```
