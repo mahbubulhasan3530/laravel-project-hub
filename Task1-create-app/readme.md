@@ -64,6 +64,8 @@ php artisan serve --host=0.0.0.0 --port=8000
  Laravel Kubernetes Deployment Test
  Health
  ```
+#### Screenshot (visual proof)
+
 ![Laravel App](laravel-app.png)
 
-#### Screenshot (visual proof)
+
