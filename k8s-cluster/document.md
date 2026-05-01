@@ -351,3 +351,6 @@ kubectl delete deployment test-nginx
 
 kubectl delete svc test-nginx
 ```
+
+## Cluster information (Proof)
+![Laravel App Cluster](cluster-info.png)
